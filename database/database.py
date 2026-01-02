@@ -28,6 +28,74 @@ def human_bytes(n):
 def download_db():
     with download_lock:
         if os.path.exists(DB_PATH):
+            DOWNLOAD_STATUS["download_state"] = "Already downloaded"
+            DOWNLOAD_STATUS["download_percent"] = 100.0
+            DOWNLOAD_STATUS["download_done_bytes"] = os.path.getsize(DB_PATH)
+            return True
+
+        try:
+            abort_download.clear()
+            DOWNLOAD_STATUS["download_state"] = "Starting..."
+            print("[DB] Starting DB download from Google Drive...")
+
+            session = requests.Session()
+
+            URL = "https://docs.google.com/uc?export=download"
+            params = {"id": GOOGLE_DRIVE_FILE_ID}
+
+            response = session.get(URL, params=params, stream=True)
+            token = None
+
+            # 🔐 Google Drive confirmation token (large file)
+            for k, v in response.cookies.items():
+                if k.startswith("download_warning"):
+                    token = v
+
+            if token:
+                params["confirm"] = token
+                response = session.get(URL, params=params, stream=True)
+
+            response.raise_for_status()
+
+            total = response.headers.get("Content-Length")
+            if total:
+                total = int(total)
+                DOWNLOAD_STATUS["download_total_bytes"] = total
+
+            done = 0
+            chunk_size = 1024 * 1024  # 1MB
+
+            with open(DB_PATH + ".part", "wb") as f:
+                for chunk in response.iter_content(chunk_size=chunk_size):
+                    if abort_download.is_set():
+                        print("[DB] Download aborted")
+                        return False
+
+                    if chunk:
+                        f.write(chunk)
+                        done += len(chunk)
+
+                        DOWNLOAD_STATUS["download_done_bytes"] = done
+                        if total:
+                            DOWNLOAD_STATUS["download_percent"] = round(
+                                (done / total) * 100, 2
+                            )
+
+            os.replace(DB_PATH + ".part", DB_PATH)
+
+            DOWNLOAD_STATUS["download_state"] = "Download complete"
+            print("[DB] Google Drive DB download complete.")
+            return True
+
+        except Exception as e:
+            print(f"[DB] Download ERROR: {e}")
+            DOWNLOAD_STATUS["download_state"] = f"Failed: {e}"
+            return False
+
+
+def download_dbdropbox():
+    with download_lock:
+        if os.path.exists(DB_PATH):
             # Verify it's a valid SQLite database
             try:
                 con = sqlite3.connect(DB_PATH)
@@ -213,3 +281,4 @@ def init_db():
     else:
         print("[DB] Database already exists.")
     create_indexes()
+
