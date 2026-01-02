@@ -2,7 +2,14 @@ import os
 
 # Database configuration
 DB_FILE = "LNMU.db"
+
+# IMPORTANT: The Dropbox URL MUST be a direct download link
+# To get a direct download link from Dropbox:
+# 1. Right-click on file in Dropbox → Share → Create link
+# 2. Replace "?dl=0" with "?dl=1" at the end of the URL
+# OR use dl.dropboxusercontent.com domain
 DROPBOX_DIRECT_URL = "https://www.dropbox.com/scl/fi/0288oe6wk9p96i4q5dv2d/LNMU.db?rlkey=6xcmq0sxwrxafpchgdm7gh3gd&st=cvy6rtgh&dl=1"
+
 DB_PATH = os.path.join(os.getcwd(), DB_FILE)
 
 # Tables to search
@@ -51,7 +58,7 @@ IMPORTANT_FIELDS = [
 ]
 
 # Report generation configuration
-LOGO_PATH = "logo.jpeg" # Assuming logo.jpeg is in the root directory
+LOGO_PATH = "logo.jpeg"
 MAX_REPORT_WIDTH = 1080
 TEMP_REPORTS_DIR = "temp_reports"
 
