@@ -1,8 +1,8 @@
 {
   "layout": {
-    "page_width": 1600,
-    "page_height": 2400,
-    "margin": 40,
+    "page_width": 2000,
+    "page_height": 3000,
+    "margin": 20,
     "header_height": 140,
     "photo_size": 220,
     "line_gap": 40,
@@ -25,13 +25,13 @@
     "table_alternate_bg": "#fafbfd"
   },
   "fonts": {
-    "title": {"name": "arialbd.ttf", "size": 48},
-    "subtitle": {"name": "arialbd.ttf", "size": 32},
-    "section": {"name": "arialbd.ttf", "size": 28},
-    "label": {"name": "arialbd.ttf", "size": 30},
-    "value": {"name": "arial.ttf", "size": 28},
-    "table_header": {"name": "arialbd.ttf", "size": 26},
-    "table_value": {"name": "arial.ttf", "size": 24}
+    "title": {"name": "arialbd.ttf", "size": 78},
+    "subtitle": {"name": "arialbd.ttf", "size": 62},
+    "section": {"name": "arialbd.ttf", "size": 58},
+    "label": {"name": "arialbd.ttf", "size": 60},
+    "value": {"name": "arial.ttf", "size": 58},
+    "table_header": {"name": "arialbd.ttf", "size": 56},
+    "table_value": {"name": "arial.ttf", "size": 54}
   },
   "sections": {
     "header": [
@@ -86,4 +86,5 @@
     }
   }
 }
+
 
