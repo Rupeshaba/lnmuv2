@@ -19,6 +19,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
+@app.get("/")
+async def root():
+    return {
+        "status": "running",
+        "message": "LNMU Student API is operational",
+        "service": "active"
+    }
+
 @app.get("/status", summary="Get database download status")
 async def get_db_status():
     return DOWNLOAD_STATUS
@@ -105,3 +113,4 @@ async def get_student_report(rollno: str, background_tasks: BackgroundTasks):
 
     background_tasks.add_task(cleanup_file)
     return FileResponse(report_path, media_type="image/jpeg", filename=output_filename)
+
