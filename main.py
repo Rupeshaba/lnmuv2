@@ -1,43 +1,39 @@
-import uvicorn
-import threading
 import os
-from pathlib import Path
+import threading
+from flask import Flask, jsonify
 
 from database.database import init_db
-from api.api import app as fastapi_app
 from telegram_bot.telegram_bot import run_telegram_bot
-from config.config import TEMP_REPORTS_DIR
+
+app = Flask(__name__)
 
 
 def start_telegram_bot():
-    print("[MAIN] Starting Telegram bot...")
+    print("[BOT] Telegram bot starting...")
     run_telegram_bot()
 
 
-def main():
+@app.route("/")
+def health():
+    return jsonify({"status": "ok"})
+
+
+if __name__ == "__main__":
     print("[MAIN] Initializing database...")
     init_db()
 
-    Path(TEMP_REPORTS_DIR).mkdir(exist_ok=True)
-
-    # 🔥 Telegram bot in background thread
+    # 🔥 Telegram bot background me
     bot_thread = threading.Thread(
         target=start_telegram_bot,
         daemon=True
     )
     bot_thread.start()
 
-    # 🔥 FastAPI MUST be in main thread (Render rule)
+    # 🔥 Render compatible port
     port = int(os.environ.get("PORT", 10000))
+    print(f"[MAIN] Flask running on port {port}")
 
-    print(f"[MAIN] Starting FastAPI on port {port}")
-
-    uvicorn.run(
-        fastapi_app,
+    app.run(
         host="0.0.0.0",
         port=port
     )
-
-
-if __name__ == "__main__":
-    main()
