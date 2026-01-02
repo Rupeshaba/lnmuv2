@@ -9,6 +9,8 @@ DB_FILE = "LNMU.db"
 # 2. Replace "?dl=0" with "?dl=1" at the end of the URL
 # OR use dl.dropboxusercontent.com domain
 DROPBOX_DIRECT_URL = "https://www.dropbox.com/scl/fi/0288oe6wk9p96i4q5dv2d/LNMU.db?rlkey=6xcmq0sxwrxafpchgdm7gh3gd&st=cvy6rtgh&dl=1"
+GOOGLE_DRIVE_FILE_ID = "1OSlOI7bOvTKzq2d834TOtzm-tehk7fS9"
+
 
 DB_PATH = os.path.join(os.getcwd(), DB_FILE)
 
@@ -64,3 +66,4 @@ TEMP_REPORTS_DIR = "temp_reports"
 
 # Pagination settings
 STUDENTS_PER_PAGE = 10
+
