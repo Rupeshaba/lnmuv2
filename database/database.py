@@ -40,10 +40,10 @@ def download_db():
 
             session = requests.Session()
 
-            URL = "https://docs.google.com/uc?export=download"
+            URL = "https://drive.usercontent.google.com/download?id=1OSlOI7bOvTKzq2d834TOtzm-tehk7fS9&export=download&authuser=0&confirm=t&uuid=decc832e-c20d-4e06-b9ff-743331113eac&at=ANTm3cy-sPLO_CVWUrnkuFuSetki%3A1767356217931"
             params = {"id": GOOGLE_DRIVE_FILE_ID}
 
-            response = session.get(URL, params=params, stream=True)
+            response = session.get(URL, stream=True)
             token = None
 
             # 🔐 Google Drive confirmation token (large file)
@@ -281,6 +281,7 @@ def init_db():
 
     print("[DB] Database ready.")
     create_indexes()
+
 
 
 
