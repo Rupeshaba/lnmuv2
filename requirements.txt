@@ -6,5 +6,6 @@ uvicorn
 python-multipart
 pyyaml
 qrcode
- 
+flask
+
 
