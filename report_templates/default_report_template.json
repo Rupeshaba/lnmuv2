@@ -1,0 +1,89 @@
+{
+  "layout": {
+    "page_width": 1600,
+    "page_height": 2400,
+    "margin": 40,
+    "header_height": 140,
+    "photo_size": 220,
+    "line_gap": 40,
+    "table_row_height": 80
+  },
+  "colors": {
+    "background": "white",
+    "header_bg": "#1a3a5c",
+    "header_text": "white",
+    "divider": "#1a3a5c",
+    "label_text": "#1a3a5c",
+    "value_text": "#2c3e50",
+    "admission_box_outline": "#1a3a5c",
+    "admission_box_fill": "#f5f8fc",
+    "section_title_bg": "#1a3a5c",
+    "section_title_text": "white",
+    "table_header_bg": "#dfe8f5",
+    "table_header_text": "#1a3a5c",
+    "table_row_bg": "white",
+    "table_alternate_bg": "#fafbfd"
+  },
+  "fonts": {
+    "title": {"name": "arialbd.ttf", "size": 48},
+    "subtitle": {"name": "arialbd.ttf", "size": 32},
+    "section": {"name": "arialbd.ttf", "size": 28},
+    "label": {"name": "arialbd.ttf", "size": 30},
+    "value": {"name": "arial.ttf", "size": 28},
+    "table_header": {"name": "arialbd.ttf", "size": 26},
+    "table_value": {"name": "arial.ttf", "size": 24}
+  },
+  "sections": {
+    "header": [
+      {"type": "logo", "position": ["margin + 20", "y + 15"], "size": [110, 110]},
+      {"type": "text", "content": "Lalit Narayan Mithila University", "font": "title", "color": "header_text", "position": ["margin + 150", "y + 10"]},
+      {"type": "text", "content": "STUDENT REPORT CARD – 2025–26", "font": "section", "color": "header_text", "position": ["margin + 150", "y + 65"]}
+    ],
+    "personal_info": [
+      {"type": "photo", "size": ["photo_size", "photo_size"], "position": ["margin", "y"]},
+      {"type": "info_pair", "label": "Name", "value_field": "cname"},
+      {"type": "info_pair", "label": "Father's Name", "value_field": "fname"},
+      {"type": "info_pair", "label": "Mother's Name", "value_field": "mname"},
+      {"type": "info_pair", "label": "Date of Birth", "value_field": "dob"},
+      {"type": "info_pair", "label": "Gender", "value_field": "gender"},
+      {"type": "info_pair", "label": "Category", "value_field": "category"},
+      {"type": "info_pair", "label": "Religion", "value_field": "religion"},
+      {"type": "info_pair", "label": "Aadhaar", "value_field": "adhaar"},
+      {"type": "info_pair", "label": "Email", "value_field": "email"},
+      {"type": "info_pair", "label": "Mobile", "value_field": "mobile"},
+      {"type": "info_pair", "label": "Address", "value_field": "cadd"}
+    ],
+    "admission_details": {
+      "title": "Admission Details",
+      "left_column": [
+        {"label": "Roll No", "value_field": "rollno"},
+        {"label": "Registration No", "value_field": "regno"},
+        {"label": "Admission Date", "value_field": "appdt"}
+      ],
+      "right_column": [
+        {"label": "College", "value_field": "allotedcollege"},
+        {"label": "Honours", "value_field": "major"},
+        {"label": "Stream", "value_field": "stream"}
+      ]
+    },
+    "educational_qualification": {
+      "title": "Educational Qualification",
+      "columns": [
+        {"label": "Class", "width_ratio": 0.15},
+        {"label": "Board", "width_ratio": 0.25},
+        {"label": "Year", "width_ratio": 0.15},
+        {"label": "Marks Obtained", "width_ratio": 0.2},
+        {"label": "Percentage", "width_ratio": 0.2}
+      ],
+      "rows": [
+        {"class": "12th", "board_field": "iboard", "year_field": "iyear", "marks_field": "intobtmarks", "percent_field": "intpercnt"}
+      ]
+    },
+    "signature": {
+      "size": [380, 140],
+      "label": "Student Signature",
+      "value_field": "FULL_SIGN_URL"
+    }
+  }
+}
+

@@ -1,0 +1,7 @@
+requests
+Pillow
+python-telegram-bot
+fastapi
+uvicorn
+python-multipart
+pyyaml
