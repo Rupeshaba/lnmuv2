@@ -13,7 +13,7 @@ def start_fastapi():
     print("[MAIN] Starting FastAPI application...")
     # Use a try-except block to gracefully handle uvicorn shutdown if needed
     try:
-        uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
+        uvicorn.run(fastapi_app, host="0.0.0.0", port=5000)
     except Exception as e:
         print(f"[MAIN] FastAPI server stopped: {e}")
 
@@ -36,3 +36,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
