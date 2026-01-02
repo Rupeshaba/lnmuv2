@@ -5,7 +5,7 @@ import threading
 import time
 from pathlib import Path
 
-from config.config import DB_PATH, DB_FILE, DROPBOX_DIRECT_URL, TABLES, SEARCH_COLS
+from config.config import DB_PATH, DB_FILE, DROPBOX_DIRECT_URL, TABLES, SEARCH_COLS,GOOGLE_DRIVE_FILE_ID
 
 # Global status for download progress
 DOWNLOAD_STATUS = {
@@ -281,4 +281,5 @@ def init_db():
     else:
         print("[DB] Database already exists.")
     create_indexes()
+
 
