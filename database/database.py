@@ -271,15 +271,17 @@ def get_tables():
 
 def init_db():
     Path(os.path.dirname(DB_PATH)).mkdir(parents=True, exist_ok=True)
+
     if not os.path.exists(DB_PATH):
         print("[DB] Database not found. Starting download...")
+
         success = download_db()
-        if not success:
-            print("[DB] Failed to download database. Retrying in 5 seconds...")
-            time.sleep(5)
-            download_db()
-    else:
-        print("[DB] Database already exists.")
+        if not success or not os.path.exists(DB_PATH):
+            raise RuntimeError("Database download failed. Cannot start app.")
+
+    print("[DB] Database ready.")
     create_indexes()
+
+
 
 
