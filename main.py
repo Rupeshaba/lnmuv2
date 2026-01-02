@@ -2,47 +2,42 @@ import uvicorn
 import threading
 import os
 from pathlib import Path
-import shutil
 
-from database.database import init_db, download_db, DOWNLOAD_STATUS
+from database.database import init_db
 from api.api import app as fastapi_app
 from telegram_bot.telegram_bot import run_telegram_bot
 from config.config import TEMP_REPORTS_DIR
 
-def start_fastapi():
-    print("[MAIN] Starting FastAPI application...")
 
-    port = int(os.environ.get("PORT", 10000))  # 🔥 Render compatible
-
-    try:
-        uvicorn.run(
-            fastapi_app,
-            host="0.0.0.0",
-            port=port
-        )
-    except Exception as e:
-        print(f"[MAIN] FastAPI server stopped: {e}")
+def start_telegram_bot():
+    print("[MAIN] Starting Telegram bot...")
+    run_telegram_bot()
 
 
 def main():
-    # 1. Initialize DB (download if not exists, create indexes)
     print("[MAIN] Initializing database...")
     init_db()
 
-    # Create temp reports directory if it doesn't exist
     Path(TEMP_REPORTS_DIR).mkdir(exist_ok=True)
 
-    # 2. Start FastAPI in a separate thread
-    fastapi_thread = threading.Thread(target=start_fastapi, daemon=True)
-    fastapi_thread.start()
+    # 🔥 Telegram bot in background thread
+    bot_thread = threading.Thread(
+        target=start_telegram_bot,
+        daemon=True
+    )
+    bot_thread.start()
 
-    # 3. Start Telegram bot in the main thread (blocking call)
-    run_telegram_bot()
+    # 🔥 FastAPI MUST be in main thread (Render rule)
+    port = int(os.environ.get("PORT", 10000))
 
-    print("[MAIN] Application shutdown.")
+    print(f"[MAIN] Starting FastAPI on port {port}")
+
+    uvicorn.run(
+        fastapi_app,
+        host="0.0.0.0",
+        port=port
+    )
+
 
 if __name__ == "__main__":
     main()
-
-
-
