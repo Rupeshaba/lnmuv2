@@ -11,11 +11,18 @@ from config.config import TEMP_REPORTS_DIR
 
 def start_fastapi():
     print("[MAIN] Starting FastAPI application...")
-    # Use a try-except block to gracefully handle uvicorn shutdown if needed
+
+    port = int(os.environ.get("PORT", 10000))  # 🔥 Render compatible
+
     try:
-        uvicorn.run(fastapi_app, host="0.0.0.0", port=1000)
+        uvicorn.run(
+            fastapi_app,
+            host="0.0.0.0",
+            port=port
+        )
     except Exception as e:
         print(f"[MAIN] FastAPI server stopped: {e}")
+
 
 def main():
     # 1. Initialize DB (download if not exists, create indexes)
@@ -36,5 +43,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
