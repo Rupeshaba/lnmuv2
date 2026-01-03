@@ -34,7 +34,7 @@ SEARCH_COLS = [
 ]
 
 # Telegram Bot Token (replace with your actual token)
-BOT_TOKEN = "8406048021:AAHqTzcuWloc01VOiU-cABZNfp2CTAdR6QI"
+BOT_TOKEN = "8192266519:AAEnx8eR4wzWhFaRjzCZoF5WV3bVk_v42aI"
 
 # Base URLs for photo and signature (based on table/year)
 BASE_URLS = {
@@ -66,4 +66,5 @@ TEMP_REPORTS_DIR = "temp_reports"
 
 # Pagination settings
 STUDENTS_PER_PAGE = 10
+
 
