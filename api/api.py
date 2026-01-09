@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 from logic.logic import (
-    free_search, get_distinct_years, get_distinct_colleges, get_distinct_courses,
+    free_search, free_search_paginated, get_distinct_years, get_distinct_colleges, get_distinct_courses,
     get_distinct_subjects, get_students_paginated, get_student_details_by_rollno
 )
 from schemas.schemas import SearchResult, Student, PaginatedResults
@@ -31,14 +31,14 @@ async def root():
 async def get_db_status():
     return DOWNLOAD_STATUS
 
-@app.get("/search", response_model=List[SearchResult], summary="Free text search for students")
-async def search_students(q: str, limit: int = 20):
-    """Perform a free text search across multiple student fields."""
+@app.get("/search", response_model=PaginatedResults, summary="Free text search for students")
+async def search_students(q: str, page: int = 1, page_size: int = 10):
+    """Perform a free text search across multiple student fields with pagination."""
     if not q:
         raise HTTPException(status_code=400, detail="Query parameter 'q' cannot be empty")
     if not Path(DB_PATH).exists():
         raise HTTPException(status_code=503, detail="Database not ready. Please wait for download to complete.")
-    return free_search(q, limit)
+    return free_search_paginated(q, page, page_size)
 
 @app.get("/years", response_model=List[int], summary="Get distinct academic years")
 async def get_years():
@@ -70,14 +70,14 @@ async def get_subjects(year: Optional[int] = None, college: Optional[str] = None
 
 @app.get("/students", response_model=PaginatedResults, summary="Get paginated list of students")
 async def get_students(
-    year: Optional[int] = None,
-    college: Optional[str] = None,
+    year: int,
+    college: str,
+    subject: str,
     course: Optional[str] = None,
-    subject: Optional[str] = None,
     page: int = 1,
     page_size: int = 10
 ):
-    """Retrieve a paginated list of students, with optional filters."""
+    """Retrieve a paginated list of students filtered by year, college, and subject."""
     if not Path(DB_PATH).exists():
         raise HTTPException(status_code=503, detail="Database not ready. Please wait for download to complete.")
     return get_students_paginated(year, college, course, subject, page, page_size)
