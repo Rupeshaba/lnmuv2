@@ -164,6 +164,38 @@ def free_search(query: str, limit: int = 500) -> List[SearchResult]:
 
     return unique_results[:limit]
 
+def free_search_paginated(query: str, page: int = 1, page_size: int = 10) -> PaginatedResults:
+    """Search across all tables and return paginated results like get_students_paginated"""
+    all_results = free_search(query, limit=500)
+    
+    total_items = len(all_results)
+    total_pages = (total_items + page_size - 1) // page_size if total_items > 0 else 0
+    
+    start_index = (page - 1) * page_size
+    end_index = start_index + page_size
+    paginated_items = all_results[start_index:end_index]
+    
+    # Convert SearchResult to dict for consistent response format
+    items = [
+        {
+            "table_name": item.table_name,
+            "cname": item.cname,
+            "rollno": item.rollno,
+            "mobile": item.mobile,
+            "adhaar": item.adhaar,
+            "FULL_PHOTO_URL": item.FULL_PHOTO_URL
+        }
+        for item in paginated_items
+    ]
+
+    return PaginatedResults(
+        total_items=total_items,
+        total_pages=total_pages,
+        current_page=page,
+        page_size=page_size,
+        items=items
+    )
+
 
 # ------------------------------------------------------------
 # GUIDED DATA APIs
