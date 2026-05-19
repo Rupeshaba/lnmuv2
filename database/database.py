@@ -5,7 +5,7 @@ import threading
 import time
 from pathlib import Path
 
-from config.config import DB_PATH, DB_FILE, DROPBOX_DIRECT_URL, TABLES, SEARCH_COLS,GOOGLE_DRIVE_FILE_ID
+from config.config import DB_PATH, DB_FILE, DROPBOX_DIRECT_URL, TABLES, SEARCH_COLS, GOOGLE_DRIVE_FILE_ID
 
 # Global status for download progress
 DOWNLOAD_STATUS = {
@@ -24,6 +24,17 @@ def human_bytes(n):
             return f"{n:.2f} {unit}"
         n /= 1024
     return f"{n:.2f} PB"
+
+
+def _apply_pragmas(con):
+    """Apply performance PRAGMAs to a SQLite connection."""
+    con.execute("PRAGMA journal_mode=WAL")       # Concurrent reads, faster writes
+    con.execute("PRAGMA synchronous=NORMAL")      # Safe but faster than FULL
+    con.execute("PRAGMA cache_size=-64000")       # 64MB page cache in RAM
+    con.execute("PRAGMA temp_store=MEMORY")       # Temp tables in RAM
+    con.execute("PRAGMA mmap_size=268435456")     # 256MB memory-mapped I/O
+    con.execute("PRAGMA optimize")                # Let SQLite auto-optimize query planner
+
 
 def download_db():
     with download_lock:
@@ -96,7 +107,6 @@ def download_db():
 def download_dbdropbox():
     with download_lock:
         if os.path.exists(DB_PATH):
-            # Verify it's a valid SQLite database
             try:
                 con = sqlite3.connect(DB_PATH)
                 con.execute("SELECT 1")
@@ -115,7 +125,6 @@ def download_dbdropbox():
             DOWNLOAD_STATUS["download_state"] = "Starting..."
             print("[DB] Starting DB download from Dropbox...")
 
-            # Add headers to ensure proper download
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
@@ -123,7 +132,6 @@ def download_dbdropbox():
             with requests.get(DROPBOX_DIRECT_URL, stream=True, timeout=60, headers=headers) as r:
                 r.raise_for_status()
 
-                # Check if response is actually a database file
                 content_type = r.headers.get('Content-Type', '')
                 print(f"[DB] Content-Type: {content_type}")
 
@@ -150,12 +158,11 @@ def download_dbdropbox():
                             if total:
                                 percent = round((done / total) * 100, 2)
                                 DOWNLOAD_STATUS["download_percent"] = percent
-                                if percent % 10 == 0:  # Log every 10%
+                                if percent % 10 == 0:
                                     print(f"[DB] Download progress: {percent}%")
 
                 os.replace(DB_PATH + ".part", DB_PATH)
 
-            # Verify the downloaded file is a valid SQLite database
             try:
                 con = sqlite3.connect(DB_PATH)
                 con.execute("SELECT 1")
@@ -172,10 +179,10 @@ def download_dbdropbox():
         except Exception as e:
             print(f"[DB] Download ERROR: {e}")
             DOWNLOAD_STATUS["download_state"] = f"Failed: {e}"
-            # Clean up partial download
             if os.path.exists(DB_PATH + ".part"):
                 os.remove(DB_PATH + ".part")
             return False
+
 
 def create_indexes():
     if not os.path.exists(DB_PATH):
@@ -184,74 +191,68 @@ def create_indexes():
 
     try:
         con = sqlite3.connect(DB_PATH)
+        _apply_pragmas(con)
         cur = con.cursor()
-        
-        # Verify database is readable
+
         cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = [row[0] for row in cur.fetchall()]
         print(f"[DB] Found tables: {tables}")
-        
-        # Create standard search column indexes
+
         for t in TABLES:
             if t not in tables:
                 print(f"[DB] Table {t} not found in database, skipping...")
                 continue
-                
+
             for c in SEARCH_COLS:
                 try:
                     cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_{c} ON {t}({c})")
                 except Exception as e:
                     print(f"[DB] Error creating index idx_{t}_{c} on table {t}: {e}")
-        
-        # Create optimized indexes for college and major searches
+
         for t in TABLES:
             if t not in tables:
                 continue
-                
-            try:
-                cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_allotedcollege ON {t}(allotedcollege)")
-            except Exception as e:
-                print(f"[DB] Error creating college index: {e}")
-            
-            try:
-                cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_major ON {t}(major)")
-            except Exception as e:
-                print(f"[DB] Error creating major index: {e}")
-            
-            try:
-                cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_allotedhonours ON {t}(allotedhonours)")
-            except Exception as e:
-                print(f"[DB] Error creating honours index: {e}")
-            
-            try:
-                cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_college_major ON {t}(allotedcollege, major)")
-            except Exception as e:
-                print(f"[DB] Error creating composite college_major index: {e}")
-            
-            try:
-                cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_college_honours ON {t}(allotedcollege, allotedhonours)")
-            except Exception as e:
-                print(f"[DB] Error creating composite college_honours index: {e}")
-            
-            try:
-                cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_cname ON {t}(cname)")
-            except Exception as e:
-                print(f"[DB] Error creating name index: {e}")
-        
+
+            for col, label in [
+                ("allotedcollege", "allotedcollege"),
+                ("major", "major"),
+                ("allotedhonours", "allotedhonours"),
+                ("cname", "cname"),
+            ]:
+                try:
+                    cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_{label} ON {t}({col})")
+                except Exception as e:
+                    print(f"[DB] Error creating {label} index: {e}")
+
+            # Composite indexes for common filter combos
+            for cols, label in [
+                ("allotedcollege, major", "college_major"),
+                ("allotedcollege, allotedhonours", "college_honours"),
+                ("allotedcollege, allotedcourse", "college_course"),
+                ("allotedcollege, allotedcourse, major", "college_course_major"),
+            ]:
+                try:
+                    cur.execute(f"CREATE INDEX IF NOT EXISTS idx_{t}_{label} ON {t}({cols})")
+                except Exception as e:
+                    print(f"[DB] Error creating composite {label} index: {e}")
+
         con.commit()
         con.close()
         print("[DB] Indexes created successfully.")
-        
+
     except Exception as e:
         print(f"[DB] Error in create_indexes: {e}")
 
+
 def execute_query(query, params=(), fetch_one=False):
+    """Execute a query and return results. Opens a fresh connection per call (thread-safe)."""
     if not os.path.exists(DB_PATH):
         return [] if not fetch_one else None
 
     try:
-        con = sqlite3.connect(DB_PATH)
+        con = sqlite3.connect(DB_PATH, check_same_thread=False)
         con.row_factory = sqlite3.Row
+        _apply_pragmas(con)
         cur = con.cursor()
         cur.execute(query, params)
         if fetch_one:
@@ -266,8 +267,10 @@ def execute_query(query, params=(), fetch_one=False):
     finally:
         con.close()
 
+
 def get_tables():
     return TABLES
+
 
 def init_db():
     Path(os.path.dirname(DB_PATH)).mkdir(parents=True, exist_ok=True)
@@ -281,8 +284,3 @@ def init_db():
 
     print("[DB] Database ready.")
     create_indexes()
-
-
-
-
-
