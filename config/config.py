@@ -34,7 +34,7 @@ SEARCH_COLS = [
 ]
 
 # Telegram Bot Token (replace with your actual token)
-BOT_TOKEN = "8378113198:AAEqG0GqleryI8YTyrNmfiFsT7X5C-tVfNY"
+BOT_TOKEN = "8406048021:AAHqTzcuWloc01VOiU-cABZNfp2CTAdR6QI"
 
 # Base URLs for photo and signature (based on table/year)
 BASE_URLS = {
